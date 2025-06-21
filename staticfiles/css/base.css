@@ -1,0 +1,14 @@
+.nav-link:hover {
+    color: blue !important;
+    text-decoration: underline !important;
+  }
+  
+body {
+    min-height: 7.5rem;
+
+    background-color: #e6e6e6;
+}
+
+h1 {
+    color: red;
+}
