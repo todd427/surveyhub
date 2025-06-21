@@ -1,0 +1,32 @@
+<!-- templates/about.html -->
+{% extends "pages/base.html" %}
+{% load static %}
+
+{% block title %}About{% endblock title %}
+
+{% block content %}
+<div class="w3-content w3-padding-32 w3-animate-opacity" style="max-width:900px;">
+  <div class="w3-row w3-card w3-white w3-round-large w3-padding-32 w3-center" style="box-shadow:0 2px 16px #0003;">
+    <div class="w3-col s12 m4 w3-center w3-padding-large">
+      <img src="{% static 'images/todd.jpg' %}" alt="Todd McCaffrey"
+           style="width:180px;max-width:80vw;" 
+           class="w3-image w3-circle w3-card-4 w3-margin-bottom">
+    </div>
+    <div class="w3-col s12 m8 w3-padding-large w3-left-align">
+      <h1 class="w3-xxlarge w3-text-indigo w3-margin-bottom" style="font-family:'Bebas Neue','Russo One',Impact,sans-serif;">About Todd McCaffrey</h1>
+      <p class="w3-large w3-opacity w3-margin-bottom">
+        I’m a novelist, technologist, and creative thinker — combining 50+ years of programming experience with a lifelong passion for storytelling. Whether I’m building scalable Django applications or publishing sci-fi and fantasy novels, I believe in shaping tools and tales that inspire.
+      </p>
+      <p>
+        I hold an MFA in Fine Arts and have authored multiple series under my name and pen names, including the <em>L.A. Witch</em> series and <em>The Canaris Rift</em> series.
+      </p>
+      <p>
+        As a developer, I work across Python, Django, and modern JavaScript stacks to create intuitive and efficient software — often blending tech and art.
+      </p>
+      <p>
+        When I’m not writing code or fiction, I explore AI, teach, and design systems that elevate human creativity.
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock content %}

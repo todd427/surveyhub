@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lunar Lander Original</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue:wght@700&family=Montserrat:wght@400;700&family=Orbitron:wght@700&family=Russo+One&display=swap" rel="stylesheet">
+    <style>
+    body {
+        background: #181c20;
+        color: #f0f0f0;
+        font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+    }
+    h1 {
+        margin-top: 40px;
+        font-size: 3em;
+        letter-spacing: 2px;
+        font-family: 'Bebas Neue', 'Russo One', Impact, sans-serif;
+        color: #ffd700;
+        text-shadow: 0 2px 12px #000c;
+        letter-spacing: 6px;
+        text-transform: uppercase;
+    }
+    table {
+        border-collapse: collapse;
+        margin: 30px 0 10px 0;
+        min-width: 490px;
+        background:
+            url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="2" stitchTiles="stitch"/></filter><rect width="60" height="60" fill="rgba(0,0,0,0)"/><rect width="60" height="60" filter="url(%23noise)" opacity="0.08"/></svg>'),
+            linear-gradient(120deg, #666 0%, #888 40%, #444 100%),
+            repeating-linear-gradient(90deg, #888 0px, #888 2px, #777 2px, #777 6px);
+        box-shadow: 0 2px 8px #0008;
+        border: 2px solid #fff4;
+        border-radius: 18px;
+    }
+    th, td {
+        border: 1px solid #444;
+        padding: 17px 34px;
+        text-align: center;
+        font-size: 1.68em;
+    }
+    th {
+        background: #2d3238;
+        color: #ffecb3;
+        font-weight: bold;
+        font-family: 'Russo One', 'Bebas Neue', 'Montserrat', sans-serif;
+        font-size: 2em;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+    td {
+        color: #e0e0e0;
+    }
+    label {
+        font-size: 1.1em;
+        margin-right: 8px;
+        font-family: 'Montserrat', Arial, sans-serif;
+    }
+    #burn-input {
+        width: 80px;
+        padding: 6px 10px;
+        border-radius: 4px;
+        border: 1px solid #444;
+        outline: 1.5px solid #fff;
+        background: #23272b;
+        color: #f0f0f0;
+        font-size: 1em;
+        margin-right: 10px;
+        font-family: 'Montserrat', Arial, sans-serif;
+    }
+    #status-msg {
+        margin-top: 24px;
+        font-size: 1.2em;
+        min-height: 1.5em;
+        padding: 10px 20px;
+        border-radius: 6px;
+        color: #ffecb3;
+        box-shadow: 0 1px 4px #0006;
+        max-width: 400px;
+        text-align: center;
+        font-family: 'Montserrat', Arial, sans-serif;
+    }
+    .status-win {
+        background: #2e7d32 !important;
+        color: #fff !important;
+    }
+    .status-lose {
+        background: #b71c1c !important;
+        color: #fff !important;
+    }
+    .status-over {
+        background: #1565c0 !important;
+        color: #fff !important;
+    }
+    table, th, td, label, #burn-input, #status-msg, h1 {
+        font-family: inherit;
+    }
+    @keyframes flash-green {
+        0%   { background-color: #4caf50; }
+        80%  { background-color: #4caf50; }
+        100% { background-color: inherit; }
+    }
+    .flash-green {
+        animation: flash-green 0.4s ease;
+    }
+    #lander_table th {
+        color: #fff !important;
+        background: none !important;
+        font-family: 'Russo One', 'Bebas Neue', Impact, Arial, sans-serif !important;
+        font-size: 2.2em !important;
+        font-weight: 900 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 2px !important;
+        border: none !important;
+        opacity: 1 !important;
+        filter: none !important;
+        text-shadow: 0 2px 8px #0008;
+        transform: none !important;
+    }
+    #lander_table td {
+        font-family: 'Orbitron', 'Share Tech Mono', 'Consolas', 'Courier New', monospace;
+        color: #f7f177;
+        text-shadow: 0 0 2px #ff980055;
+        font-size: 2.1em;
+        letter-spacing: 2px;
+        font-weight: 700;
+        background: rgba(30, 20, 0, 0.10);
+        border-radius: 4px;
+        box-shadow: none;
+        padding: 14px 26px;
+    }
+    .lander-controls {
+        margin: 2em auto 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        max-width: 600px;
+        width: 100%;
+    }
+    #help-btn, #home-btn {
+        font-family: 'Russo One', 'Bebas Neue', Arial, sans-serif;
+        font-size: 1.2em;
+        background: #2196f3;
+        color: white;
+        border: none;
+        border-radius: 0.5em;
+        width: 6em;
+        height: 2em;
+        cursor: pointer;
+        box-shadow: 0 2px 6px #0003;
+        text-align: center;
+        line-height: 2em;
+        text-decoration: none;
+        letter-spacing: 1px;
+        transition: background 0.2s;
+    }
+    #help-btn:hover, #home-btn:hover {
+        background: #1769aa;
+    }
+    #home-btn {
+        width: 4em;
+    }
+    .lander-wrap {
+    width: fit-content;
+    margin: 0 auto 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* ensures left alignment inside the wrap */
+}
+.burn-group {
+    display: flex;
+    align-items: center;
+    border: 2.5px solid #ffd700;
+    border-radius: 0.75em;
+    padding: 0.8em 1.5em 0.8em 1.5em;
+    background: rgba(34, 34, 44, 0.80);
+    box-shadow: 0 3px 16px #0008;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    font-size: 1.22em;
+    margin-left: 0; /* aligns exactly to left of table */
+}
+    .burn-group label {
+        font-size: 1.32em;
+        margin-right: 14px;
+        color: #ffd700;
+        font-family: 'Russo One', 'Montserrat', Arial, sans-serif;
+    }
+    #burn-input {
+        font-size: 1.32em;
+        width: 120px;
+        padding: 9px 16px;
+        border-radius: 7px;
+        border: 2px solid #ffd700;
+        outline: 2px solid #fff2;
+        background: #23272b;
+        color: #f7f177;
+        margin-right: 0px;
+        font-family: 'Orbitron', 'Montserrat', Arial, sans-serif;
+        transition: box-shadow 0.2s, border 0.2s;
+    }
+    #burn-input:focus {
+        border-color: #fff7b3;
+        box-shadow: 0 0 8px #ffd700aa;
+        outline: none;
+        background: #181c20;
+    }
+    </style>
+</head>
+<body>
+    <h1>Lunar Lander</h1>
+    <table id="lander_table"></table>
+    <div class="lander-wrap">
+            <div class="burn-group">
+        <label for="burn-input">Burn amount:</label>
+        <input type="number" id="burn-input" min="0" step="1">
+    </div>
+    </div>
+
+    <div class="lander-controls">
+        <button id="help-btn" title="About Lunar Lander">Help</button>
+        <a href="{% url 'home' %}" id="home-btn" title="Go to Home">QUIT</a>
+    </div>
+
+    <!-- Collapsible Help Section -->
+    <div id="help-section" style="display:none; margin-top:1em; background:#222; color:#eee; padding:1.2em; border-radius:0.5em;">
+        <h2 style="color: #ffd700; font-family: 'Bebas Neue', 'Russo One', Impact, sans-serif;">Lunar Lander: How to Play</h2>
+        <p><b>Goal:</b> Land your lunar module safely on the moon by managing your speed and fuel.</p>
+        <h3 style="font-family: 'Bebas Neue', 'Russo One', Impact, sans-serif;">How it Works</h3>
+        <ul>
+            <li>You start with a certain height, downward speed, and a limited amount of fuel.</li>
+            <li>Each turn, enter how much fuel to burn (0-75 units) and press Enter.</li>
+            <li>Burning fuel slows your descent. Gravity pulls you down each turn.</li>
+            <li>Your height, speed, and fuel update after each burn.</li>
+        </ul>
+        <h3 style="font-family: 'Bebas Neue', 'Russo One', Impact, sans-serif;">How to Win</h3>
+        <ul>
+            <li>Land with a speed of -5 or higher (closer to zero) when your height reaches 0.</li>
+            <li>If you run out of fuel, you will crash unless your speed is already safe.</li>
+            <li>If you land too fast (speed less than -5), you crash and make a crater!</li>
+        </ul>
+        <p>Good luck, Commander!</p>
+    </div>
+
+    <div id="status-msg"></div>
+    <script>
+        var table = document.getElementById("lander_table");
+        // Add header row
+        var header = table.insertRow();
+        header.insertCell().innerText = "Height";
+        header.insertCell().innerText = "Speed";
+        header.insertCell().innerText = "Fuel";
+        header.insertCell().innerText = "Time";
+
+        // Add data row
+        var height = 2500;
+        var speed = -450;
+        var fuel = 600;
+        var time = 0;
+        var row = table.insertRow();
+        var heightCell = row.insertCell();
+        var speedCell = row.insertCell();
+        var fuelCell = row.insertCell();
+        var timeCell = row.insertCell();
+        heightCell.innerText = height;
+        speedCell.innerText = speed;
+        fuelCell.innerText = fuel;
+        timeCell.innerText = time.toString().padStart(3, '0');
+
+        // Physics constants
+        var thrust = 1;
+        var gravity = -5;
+
+        var statusMsg = document.getElementById('status-msg');
+        var burnInput = document.getElementById('burn-input');
+        var gameOver = false;
+
+        function flashCell(cell) {
+            cell.classList.remove('flash-green');
+            void cell.offsetWidth;
+            cell.classList.add('flash-green');
+        }
+
+        if (burnInput) {
+            burnInput.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter' || event.keyCode === 13) {
+                    if (gameOver) {
+                        statusMsg.classList.remove('status-win', 'status-lose');
+                        statusMsg.classList.add('status-over');
+                        statusMsg.innerText = 'Game over! Please refresh to play again.';
+                        return;
+                    }
+
+                    var burn = parseInt(burnInput.value, 10);
+                    if (isNaN(burn) || burn < 0 || burn > 75) {
+                        statusMsg.innerText = 'Please enter a number between 0 and 75.';
+                        return;
+                    }
+                    if (burn > fuel) {
+                        burn = fuel;
+                    }
+
+                    // Update physics
+                    fuel -= burn;
+                    speed = speed + (burn * thrust) + gravity;
+                    height = height + speed;
+
+                    // If height goes below 0, it's a crash
+                    if (height < 0) {
+                        var craterDepth = Math.abs(height).toFixed(2);
+                        statusMsg.classList.remove('status-win', 'status-lose');
+                        statusMsg.innerText = `You have crashed! You made a crater ${craterDepth} meters deep on the moon.`;
+                        statusMsg.classList.add('status-lose');
+                        gameOver = true;
+                        burnInput.value = '';
+                        return;
+                    }
+
+                    // Update table with flash before value change
+                    flashCell(heightCell);
+                    setTimeout(() => { heightCell.innerText = height; }, 400);
+                    flashCell(speedCell);
+                    setTimeout(() => { speedCell.innerText = speed; }, 400);
+                    flashCell(fuelCell);
+                    setTimeout(() => { fuelCell.innerText = fuel; }, 400);
+                    time++;
+                    flashCell(timeCell);
+                    setTimeout(() => { timeCell.innerText = time.toString().padStart(3, '0'); }, 400);
+
+                    // Status logic
+                    statusMsg.classList.remove('status-win', 'status-lose');
+                    if (height === 0) {
+                        if (speed >= -5) {
+                            statusMsg.innerText = 'Congratulations! You have landed safely!';
+                            statusMsg.classList.add('status-win');
+                        } else {
+                            statusMsg.innerText = 'You have crashed!';
+                            statusMsg.classList.add('status-lose');
+                        }
+                        gameOver = true;
+                    } else if (fuel <= 0) {
+                        // Calculate seconds until impact
+                        var seconds = 0;
+                        if (speed < 0) {
+                            seconds = Math.ceil(height / Math.abs(speed));
+                        } else {
+                            // Time to apex
+                            var t1 = speed / Math.abs(gravity);
+                            var h1 = height + speed * t1 + 0.5 * gravity * t1 * t1;
+                            if (h1 < 0) h1 = 0;
+                            var t2 = Math.sqrt(2 * h1 / Math.abs(gravity));
+                            seconds = Math.ceil(t1 + t2);
+                        }
+                        statusMsg.innerText = `You have run out of fuel! You have about ${seconds} seconds to say your prayers.`;
+                        statusMsg.classList.add('status-lose');
+                        gameOver = true;
+                    } else {
+                        statusMsg.innerText = '';
+                    }
+
+                    burnInput.value = '';
+                }
+            });
+        }
+
+        var helpBtn = document.getElementById('help-btn');
+        if (helpBtn) {
+            helpBtn.addEventListener('click', function() {
+                var helpSection = document.getElementById('help-section');
+                if (helpSection.style.display === 'none' || helpSection.style.display === '') {
+                    helpSection.style.display = 'block';
+                    this.textContent = "Hide Help";
+                } else {
+                    helpSection.style.display = 'none';
+                    this.textContent = "Help";
+                }
+            });
+        }
+    </script>
+</body>
+</html>

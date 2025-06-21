@@ -1,0 +1,28 @@
+{% load static %}
+{% load crispy_forms_tags %}
+{% load socialaccount %}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}Foxxe Frey Labs{% endblock title %}</title>
+  <!-- W3.CSS -->
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+</head>
+<body class="w3-light-grey">
+
+  <nav class="w3-bar w3-white w3-large w3-card-4">
+    <a href="{% url 'home' %}" class="w3-bar-item w3-button w3-mobile w3-text-indigo"><b>Foxxe Frey Labs</b></a>
+    <a href="{% url 'lander' %}" class="w3-bar-item w3-button w3-mobile">Lunar Lander</a>
+    <a href="{% url 'about' %}" class="w3-bar-item w3-button w3-mobile">About</a>
+  </nav>
+
+  <div class="w3-content w3-padding-32" style="max-width:960px;">
+    {% block content %}
+    {% endblock content %}
+  </div>
+
+  <script src="{% static 'js/base.js' %}"></script>
+</body>
+</html>
