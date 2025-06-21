@@ -1,4 +1,3 @@
-<!-- quiz/templates/quiz/internet_quiz.html -->
 {% extends "quiz/base.html" %}
 {% block title %}{{ quiz.title }}{% endblock %}
 {% block content %}
@@ -18,18 +17,70 @@
       document.getElementById("uuidInput").value = uuid;
     });
 </script>
+<style>
+  .likert-table th,
+  .likert-table td {
+    text-align: center;
+    vertical-align: middle;
+  }
+  .likert-table th:first-child,
+  .likert-table td:first-child {
+    text-align: left;
+    width: 45%;
+    font-weight: 500;
+  }
+  .likert-table tr:nth-child(even) {
+    background-color: #f1f1f1;
+  }
+  .likert-table tr:hover {
+    background-color: #ffe0b2 !important;
+    transition: background 0.2s;
+  }
+  .section-title {
+    background: #e3e9fd;
+    padding: 0.75em 1em;
+    border-radius: 0.6em;
+    margin: 2em 0 1em 0;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    box-shadow: 0 2px 6px #9fa8da33;
+  }
+  @media (max-width: 700px) {
+    .likert-table, .likert-table thead, .likert-table tbody, .likert-table tr, .likert-table th, .likert-table td {
+      display: block;
+    }
+    .likert-table tr {
+      margin-bottom: 1.5em;
+    }
+    .likert-table th {
+      display: none;
+    }
+    .likert-table td:first-child {
+      background: #f4f7fb;
+      font-weight: 700;
+      padding-top: 0.7em;
+      padding-bottom: 0.7em;
+      border-radius: 0.5em 0.5em 0 0;
+    }
+    .likert-table td:not(:first-child) {
+      text-align: left;
+      padding-left: 1em;
+    }
+  }
+</style>
 <div class="w3-content w3-padding-32" style="max-width:900px;">
-  <div class="w3-card w3-white w3-round-large w3-padding-large w3-animate-opacity">
-    <h1 class="w3-xxlarge w3-text-indigo">{{ quiz.title }}</h1>
-    <p class="w3-large w3-text-grey w3-opacity">{{ quiz.description }}</p>
+  <div class="w3-card w3-white w3-round-xlarge w3-padding-large w3-animate-opacity w3-shadow-large">
+    <h1 class="w3-xxxlarge w3-text-indigo w3-center" style="letter-spacing:0.05em;">{{ quiz.title }}</h1>
+    <p class="w3-large w3-text-grey w3-opacity w3-center">{{ quiz.description }}</p>
     <form method="post" class="w3-container w3-padding">
       {% csrf_token %}
       <input type="hidden" name="uuid" id="uuidInput">
       {% for section, questions in section_questions %}
-        <h2 class="w3-large w3-text-indigo w3-border-bottom w3-padding-small">{{ section.name|title }}</h2>
-        <table class="w3-table-all w3-hoverable w3-margin-bottom">
+        <div class="section-title">{{ section.name|title }}</div>
+        <div style="overflow-x:auto;">
+        <table class="w3-table-all w3-hoverable w3-margin-bottom likert-table">
           <thead>
-            <tr>
+            <tr class="w3-light-grey">
               <th>Question</th>
               <th>N/A</th>
               <th>1</th>
@@ -44,14 +95,17 @@
               <tr>
                 <td class="w3-left-align">{{ field.label }}</td>
                 {% for radio in field %}
-                  <td>{{ radio.tag }}</td>
+                  <td>{% if radio.choice_label %}<label style="cursor:pointer;">{{ radio.tag }}</label>{% else %}{{ radio.tag }}{% endif %}</td>
                 {% endfor %}
               </tr>
             {% endfor %}
           </tbody>
         </table>
+        </div>
       {% endfor %}
-      <button type="submit" class="w3-button w3-indigo w3-large w3-round-xlarge w3-margin-top">Submit</button>
+      <div class="w3-center">
+        <button type="submit" class="w3-button w3-indigo w3-xlarge w3-round-xlarge w3-margin-top w3-hover-blue">Submit</button>
+      </div>
     </form>
   </div>
 </div>
