@@ -9,14 +9,27 @@
   <!-- W3.CSS -->
   <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
   <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
 </head>
 <body class="w3-light-grey">
 
-  <nav class="w3-bar w3-white w3-large w3-card-4">
-    <a href="{% url 'home' %}" class="w3-bar-item w3-button w3-mobile w3-text-indigo"><b>Foxxe Frey Labs</b></a>
-    <a href="{% url 'lander' %}" class="w3-bar-item w3-button w3-mobile">Lunar Lander</a>
-    <a href="{% url 'about' %}" class="w3-bar-item w3-button w3-mobile">About</a>
-  </nav>
+<!-- Hamburger/Menu Button (far right, always visible) -->
+<div class="w3-top w3-padding-16" style="background:transparent; text-align:right;">
+  <button class="w3-button w3-xlarge w3-white w3-card w3-circle"
+          onclick="document.getElementById('ff-navbar').classList.toggle('w3-show')"
+          style="margin: 0.4em 1em 0 0; box-shadow:0 1px 8px #0003;">
+    <i class="fa fa-bars"></i>
+  </button>
+</div>
+
+<!-- The Navbar (hidden by default) -->
+<nav id="ff-navbar" class="w3-bar w3-white w3-large w3-card-4 w3-hide w3-animate-opacity"
+     style="position:fixed; top:0; left:0; right:0; z-index:99;">
+  <a href="{% url 'home' %}" class="w3-bar-item w3-button w3-mobile w3-text-indigo"><b>Foxxe Frey Labs</b></a>
+  <a href="{% url 'lander' %}" class="w3-bar-item w3-button w3-mobile">Lunar Lander</a>
+  <a href="{% url 'about' %}" class="w3-bar-item w3-button w3-mobile">About</a>
+</nav>
 
   <div class="w3-content w3-padding-32" style="max-width:960px;">
     {% block content %}
