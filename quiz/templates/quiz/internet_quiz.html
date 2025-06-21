@@ -1,0 +1,58 @@
+<!-- quiz/templates/quiz/internet_quiz.html -->
+{% extends "quiz/base.html" %}
+{% block title %}{{ quiz.title }}{% endblock %}
+{% block content %}
+<script>
+  function hashString(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = ((hash << 5) - hash) + str.charCodeAt(i);
+      hash |= 0;
+    }
+    return 'uuid-' + Math.abs(hash).toString(16);
+  }
+  fetch('https://api.ipify.org?format=json')
+    .then(res => res.json())
+    .then(data => {
+      const uuid = hashString(data.ip + navigator.userAgent);
+      document.getElementById("uuidInput").value = uuid;
+    });
+</script>
+<div class="w3-content w3-padding-32" style="max-width:900px;">
+  <div class="w3-card w3-white w3-round-large w3-padding-large w3-animate-opacity">
+    <h1 class="w3-xxlarge w3-text-indigo">{{ quiz.title }}</h1>
+    <p class="w3-large w3-text-grey w3-opacity">{{ quiz.description }}</p>
+    <form method="post" class="w3-container w3-padding">
+      {% csrf_token %}
+      <input type="hidden" name="uuid" id="uuidInput">
+      {% for section, questions in section_questions %}
+        <h2 class="w3-large w3-text-indigo w3-border-bottom w3-padding-small">{{ section.name|title }}</h2>
+        <table class="w3-table-all w3-hoverable w3-margin-bottom">
+          <thead>
+            <tr>
+              <th>Question</th>
+              <th>N/A</th>
+              <th>1</th>
+              <th>2</th>
+              <th>3</th>
+              <th>4</th>
+              <th>5</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for field in questions %}
+              <tr>
+                <td class="w3-left-align">{{ field.label }}</td>
+                {% for radio in field %}
+                  <td>{{ radio.tag }}</td>
+                {% endfor %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endfor %}
+      <button type="submit" class="w3-button w3-indigo w3-large w3-round-xlarge w3-margin-top">Submit</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

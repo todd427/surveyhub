@@ -48,7 +48,8 @@ INSTALLED_APPS = [
     'adminsortable2',
     # local apps
     'pages.apps.PagesConfig',
-]
+    'quiz',
+    ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
