@@ -7,8 +7,27 @@ from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 
+import requests
+from django.shortcuts import render
+
+import requests
+from django.shortcuts import render
+
 class HomePageView(TemplateView):
     template_name = 'pages/home.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        try:
+            resp = requests.get("https://api.quotable.io/random", timeout=3)
+            quote = resp.json()
+            context['quote_text'] = quote.get('content', "Keep going. Everything you need will come to you.")
+            context['quote_author'] = quote.get('author', "Unknown")
+        except Exception:
+            context['quote_text'] = "Keep going. Everything you need will come to you."
+            context['quote_author'] = "Unknown"
+        return context
+
 
 class AboutPageView(TemplateView):
     template_name = 'pages/about.html'

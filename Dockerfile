@@ -24,6 +24,8 @@ RUN python manage.py collectstatic --noinput --settings=surveyhub.settings.prod
 ENV DJANGO_SETTINGS_MODULE=surveyhub.settings.prod
 
 EXPOSE 8000
+COPY entrypoint.sh .
+RUN chmod +x entrypoint.sh
 
 # Start Gunicorn web server
-CMD ["gunicorn", "surveyhub.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["./entrypoint.sh"]

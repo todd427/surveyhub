@@ -1,16 +1,23 @@
 # surveyhub/settings/prod.py
 from .base import *
+import os
+from dotenv import load_dotenv
 
+dotenv_file = os.environ.get("DJANGO_ENV_FILE", ".env.local")
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', dotenv_file))
+
+SECRET_KEY = os.environ.get("SECRET_KEY")
+DATABASE_URL = "postgres://surveyuser:totme@localhost:5432/YOURDB"
+print("using",DATABASE_URL)
 import dj_database_url
-
 DATABASES = {
-    "default": dj_database_url.config(
-        default=os.environ.get("DATABASE_URL")
-    )
+    "default": dj_database_url.config(default=DATABASE_URL)
 }
 
 
-SECRET_KEY = os.environ.get("SECRET_KEY")
+DEBUG = True
+SECRET_KEY = os.environ["SECRET_KEY"]
+
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
@@ -21,13 +28,6 @@ ALLOWED_HOSTS = [
 ]
 
 
-# Database (example: using dj-database-url for Railway or other PaaS)
-import dj_database_url
-DATABASES = {
-    "default": dj_database_url.config(
-        default=os.environ.get("DATABASE_URL")
-    )
-}
 
 # Static files (served by WhiteNoise or PaaS)
 STATIC_ROOT = BASE_DIR / "staticfiles"
@@ -35,18 +35,18 @@ STATIC_URL = "/static/"
 
 MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
 
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
-SECURE_HSTS_SECONDS = 31536000 
-SECURE_SSL_REDIRECT = True
+#CSRF_COOKIE_SECURE = True
+#SESSION_COOKIE_SECURE = True
+#SECURE_HSTS_SECONDS = 31536000 
+#SECURE_SSL_REDIRECT = True
 
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 
-
-
+SECURE_SSL_REDIRECT = False
+CSRF_COOKIE_SECURE = False
 SESSION_COOKIE_SECURE = False
-
+SECURE_HSTS_SECONDS = 0
 SECURE_HSTS_INCLUDE_SUBDOMAINS = False
 SECURE_HSTS_PRELOAD = False
 
