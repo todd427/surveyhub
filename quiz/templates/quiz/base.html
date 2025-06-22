@@ -1,6 +1,4 @@
 {% load static %}
-{% load crispy_forms_tags %}
-{% load socialaccount %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -10,6 +8,7 @@
   <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
   <link rel="stylesheet" href="{% static 'css/base.css' %}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 </head>
 <body class="w3-light-grey">
@@ -28,6 +27,7 @@
      style="position:fixed; top:0; left:0; right:0; z-index:99;">
   <a href="{% url 'home' %}" class="w3-bar-item w3-button w3-mobile w3-text-indigo"><b>Foxxe Frey Labs</b></a>
   <a href="{% url 'internet_quiz' %}" class="w3-bar-item w3-button w3-mobile">Internet Quiz</a>
+  <a href="{% url 'programmer_survey' %}" class="w3-bar-item w3-button w3-mobile">Programmer Survey</a>
   <a href="{% url 'lander' %}" class="w3-bar-item w3-button w3-mobile">Lunar Lander</a>
   <a href="{% url 'about' %}" class="w3-bar-item w3-button w3-mobile">About</a>
 </nav>

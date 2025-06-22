@@ -148,9 +148,16 @@
       <i class="fa fa-paper-plane w3-margin-right"></i> Submit
     </button>
   </div>
-  
+      <button type="submit" class="w3-button w3-indigo w3-xlarge w3-round-large w3-hover-blue">
+      <i class="fa fa-paper-plane w3-margin-right"></i> Submit
       </form>
     {% endif %}
+    {% if form.errors %}
+  <div class="w3-panel w3-red">
+    {{ form.errors }}
+  </div>
+{% endif %}
+
   </div>
 </div>
 {% endblock %}

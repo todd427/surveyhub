@@ -201,7 +201,7 @@ class ProgrammerSurveyForm(forms.Form):
     )
    
     interests_other = forms.CharField(label="Other interests (if not listed)", max_length=128, required=False)
-    learning = forms.MultipleChoiceField(
+    learning = forms.ChoiceField(
         label="How do you learn new technologies?",
         choices=[("rarely", "Rarely"), ("when_needed", "When needed"), ("every_few_months", "Every few months"), ("constantly", "Constantly")],
         widget=forms.RadioSelect,

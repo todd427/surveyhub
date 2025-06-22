@@ -52,6 +52,7 @@ class ProgrammerResponse(models.Model):
     favorite_areas = models.CharField(max_length=128, blank=True)
     interests_other = models.CharField(max_length=128, blank=True)
     learning = models.TextField()
+    learning_other = models.CharField(max_length=128, blank=True)
     submitted_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

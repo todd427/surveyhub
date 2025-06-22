@@ -1,5 +1,5 @@
 # quiz/views.py
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, reverse
 from .models import Quiz, QuizResponse, Answer, Section, Question
 from .forms import build_quiz_form
 
@@ -34,32 +34,18 @@ def internet_quiz_view(request):
         "section_questions": section_questions,
     })
 
-def programmer_survey_view(request):
-    quiz = get_object_or_404(Quiz, title="Programmer Experience Survey")
-    QuizForm = build_quiz_form(quiz)
-    if request.method == "POST":
-        form = QuizForm(request.POST)
-        if form.is_valid():
-            response = QuizResponse.objects.create(quiz=quiz, uuid=request.POST.get('uuid', ''))
-            for field_name, value in form.cleaned_data.items():
-                if field_name.startswith('q_'):
-                    qid = int(field_name.split('_')[1])
-                    Answer.objects.create(response=response, question_id=qid, value=value)
-            return render(request, "quiz/thanks.html", {"quiz": quiz})
-    else:
-        form = QuizForm()
-    # ... (section/grouping code as with your Internet Quiz)
-    # For a simple flat form:
-    return render(request, "quiz/programmer_survey.html", {
-        "quiz": quiz,
-        "form": form,
-    })
 
 from django.shortcuts import render, redirect
 from .forms import ProgrammerSurveyForm
 from .models import ProgrammerResponse
 
+
+def thanks_view(request):
+    quiz = request.GET.get('quiz', 'Survey')
+    return render(request, "quiz/thanks.html", {"quiz": quiz})
+
 def programmer_survey_view(request):
+    print("programmer_survey_view")
     submitted = False
     if request.method == 'POST':
         form = ProgrammerSurveyForm(request.POST)
@@ -72,7 +58,10 @@ def programmer_survey_view(request):
             data['learning'] = ', '.join(data['learning'])
             ProgrammerResponse.objects.create(**data)
             submitted = True
+            print("submitted")
+            return redirect(f"{reverse('thanks')}?quiz=Programmer+Survey") 
     else:
+        print("not submitted")
         form = ProgrammerSurveyForm()
     return render(request, 'quiz/programmer_survey.html', {
         'form': form,
