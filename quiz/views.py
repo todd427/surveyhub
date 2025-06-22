@@ -19,7 +19,9 @@ def internet_quiz_view(request):
                 if field_name.startswith('q_'):
                     qid = int(field_name.split('_')[1])
                     Answer.objects.create(response=response, question_id=qid, value=value)
-            return render(request, "quiz/thanks.html", {"quiz": quiz})
+            #return render(request, "quiz/thanks.html", {"quiz": quiz})
+            return redirect(f"{reverse('thanks')}?quiz=Internet+Survey") 
+        
     else:
         form = QuizForm()
     # Group questions by section for display
