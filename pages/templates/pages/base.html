@@ -36,6 +36,11 @@
     {% endblock content %}
   </div>
    
+  {% if show_docker_banner %}
+  <div style="background: #181e44; color: #fff; text-align: center; font-size: 1.2em; padding: 0.5em 0; margin-bottom: 1em;">
+    🐳 You are running this site in <strong>Docker</strong>! 🐳
+  </div>
+{% endif %}
 
   <script src="{% static 'js/base.js' %}"></script>
 </body>

@@ -100,6 +100,8 @@ if [[ "$ENV" =~ ^(prod|drd|local|custom)$ ]]; then
     cp "$FILE" .env
     export DJANGO_ENV_FILE="$FILE"
     echo "✅ Copied $FILE to .env and exported DJANGO_ENV_FILE=$FILE"
+    cat $FILE
+    echo "--------------------------------"
 fi
 
 if [[ "$ACTION" == "up" ]]; then

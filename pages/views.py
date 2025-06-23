@@ -18,6 +18,7 @@ class HomePageView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['show_docker_banner'] = getattr(settings, "SHOW_DOCKER_BANNER", False)
         try:
             resp = requests.get("https://zenquotes.io/api/random", timeout=3)
             #print("got quote", resp.json())

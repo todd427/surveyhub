@@ -1,40 +1,48 @@
 # surveyhub/docker-compose.yaml
 services:
   db:
-    image: postgres:16
-    restart: unless-stopped
+    image: postgres:16.2
     environment:
       POSTGRES_USER: surveyuser
       POSTGRES_PASSWORD: totme
-      POSTGRES_DB: YOURDB
+      POSTGRES_DB: surveyhub
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U surveyuser"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
-  web:
+  web:  # Fixed: was "yamlweb"
     build: .
-    depends_on:
-      - db
+    command: >
+      ./wait-for-posgres.sh db sh -c "python manage.py migrate --settings=surveyhub.settings.drd && python manage.py runserver 0.0.0.0:8000 --settings=surveyhub.settings.drd"
+    volumes:
+      - .:/app
     ports:
       - "8000:8000"
+      - "8001:8001"
+      
     environment:
-      # Pick your mode: drd (debug) or prod (production)
-      DJANGO_ENV: ${DJANGO_ENV:-prod}
-      # These get loaded in your settings module
-      SECRET_KEY: ${SECRET_KEY}
-      DATABASE_URL: ${DATABASE_URL}
+      #SECRET_KEY: ${SECRET_KEY}
+      #DATABASE_URL: ${DATABASE_URL}
+      #DJANGO_ENV_FILE: ${DJANGO_ENV_FILE:-.env.drd}
+      #POSTGRES_USER: ${POSTGRES_USER}
+      #POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      #POSTGRES_DB: ${POSTGRES_DB}
+      - POSTGRES_DB=surveyhub
+      - POSTGRES_USER=surveyuser
+      - POSTGRES_PASSWORD=totme
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+    depends_on:
+      db:
+        condition: service_healthy
     env_file:
-      # This line means: use .env.drd for dev, .env.prod for prod
-      - .env.${DJANGO_ENV:-prod}
-    command: >
-      sh -c "
-        python manage.py migrate --settings=surveyhub.settings.${DJANGO_ENV:-prod} &&
-        if [ \"$DJANGO_ENV\" = \"drd\" ]; then
-          python manage.py runserver 0.0.0.0:8000 --settings=surveyhub.settings.drd;
-        else
-          gunicorn surveyhub.wsgi:application --bind 0.0.0.0:8000 --env DJANGO_SETTINGS_MODULE=surveyhub.settings.prod;
-        fi
-      "
+      - ${DJANGO_ENV_FILE:-.env.drd}
+
 volumes:
-  postgres_data:
+  pgdata:
