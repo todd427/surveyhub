@@ -19,10 +19,14 @@ class HomePageView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         try:
-            resp = requests.get("https://api.quotable.io/random", timeout=3)
-            quote = resp.json()
-            context['quote_text'] = quote.get('content', "Keep going. Everything you need will come to you.")
-            context['quote_author'] = quote.get('author', "Unknown")
+            resp = requests.get("https://zenquotes.io/api/random", timeout=3)
+            #print("got quote", resp.json())
+            quotes = resp.json()
+            quote = quotes[0] if quotes else {}
+            #print("quote", quote)
+            #print("quote.get('q')", quote.get('q'))
+            context['quote_text'] = quote.get('q', "Keep going. Everything you need will come to you.")
+            context['quote_author'] = quote.get('a', "Unknown")
         except Exception:
             context['quote_text'] = "Keep going. Everything you need will come to you."
             context['quote_author'] = "Unknown"

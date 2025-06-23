@@ -1,25 +1,91 @@
-<!-- templates/home.html -->
 {% extends "pages/base.html" %}
 {% load static %}
 {% block content %}
-<div class="w3-center w3-padding-64">
-  <img src="{% static 'images/FoxxeLabs.png' %}" alt="Foxxe Frey Labs" style="width:180px;max-width:40vw;" class="w3-image w3-margin-bottom w3-circle w3-card-4">
-  <h1 class="w3-xxlarge w3-text-indigo w3-margin-top">Welcome to <span class="w3-text-deep-purple">Foxxe Labs</span></h1>
-  <p class="w3-large w3-text-grey w3-opacity w3-margin-bottom">Innovating at the crossroads of fiction & code.</p>
-  <div class="w3-panel w3-light-grey w3-round-large w3-padding-16 w3-margin-top w3-margin-bottom">
-    <h4 class="w3-serif w3-large">Quote of the Day</h4>
-    <blockquote>
-      <span class="w3-xlarge">“{{ quote_text }}”</span>
-      <br>
-      <span class="w3-small w3-text-grey">— {{ quote_author }}</span>
-    </blockquote>
+<style>
+  .fl-welcome-flex {
+    display: flex;
+    align-items: stretch;
+    gap: 2rem;
+    margin-bottom: 2.5em;
+    flex-wrap: wrap;
+  }
+  .fl-header-left {
+    display: flex;
+    align-items: center;
+    min-width: 270px;
+    background: #e3ecfa;   /* Light blue */
+    padding: 2em 2.5em 2em 2em;
+    border-radius: 1.5em;
+    box-shadow: 0 3px 12px #dedede50;
+    flex: 1 1 340px;
+  }
+  .fl-header-logo {
+    height: 80px;
+    width: auto;
+    margin-right: 2em;
+    border-radius: 0.5em;
+    box-shadow: 0 0 4px #ccc;
+    background: #f3f1e5;
+  }
+  .fl-header-right {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+    min-width: 300px;
+    max-width: 420px;
+    padding: 2em 2em 2em 2.5em;
+    border-radius: 1.5em;
+    background: linear-gradient(90deg, #e3ecfa 60%, #c7d9f5 100%);
+    color: #fff;
+    box-shadow: 0 3px 12px #b2bbda70;
+    border-left: 6px solid #5b79c8;
+    flex: 1 1 340px;
+  }
+  .fl-qotd-quote {
+    font-size: 1.15em;
+    font-style: italic;
+    margin-bottom: 0.6em;
+    line-height: 1.5;
+    color: #042548;
+    text-shadow: 0 2px 8px #7edbef80;
+  }
+  .fl-qotd-author {
+    font-size: 1em;
+    color: #2a6bc6;
+    text-align: right;
+    font-weight: 500;
+  }
+  @media (max-width: 850px) {
+    .fl-welcome-flex { flex-direction: column; align-items: stretch; gap: 1.3em; }
+    .fl-header-left, .fl-header-right { max-width: 100%; border-radius: 1.2em; }
+    .fl-header-logo { margin-right: 1em; }
+    .fl-header-right { border-left: none; border-top: 4px solid #5b79c8; align-items: flex-start; }
+  }
+</style>
+<div class="w3-container">
+  <div class="fl-welcome-flex">
+    <!-- Foxxe Labs: logo and welcome text (left) -->
+    <div class="fl-header-left">
+      <img src="{% static 'images/FoxxeLabs.png' %}" alt="Foxxe Labs Logo" class="fl-header-logo w3-image"/>
+      <div>
+        <h2 class="w3-xxlarge w3-text-indigo" style="margin: 0 0 0.15em 0;">Welcome to Foxxe Labs!</h2>
+        <p class="w3-large" style="margin: 0;">Explore surveys, share your thoughts, and see what’s new every day.</p>
+      </div>
+    </div>
+    <!-- Quote of the Day (right) -->
+    <div class="fl-header-right">
+      <div>
+        <div class="fl-qotd-quote">&#10077; {{ quote_text }} &#10078;</div>
+        <div class="fl-qotd-author">&mdash; {{ quote_author }}</div>
+      </div>
+    </div>
   </div>
-  <div class="w3-bar w3-margin-top w3-large w3-animate-opacity" style="justify-content: center; display: flex; gap: 2.5em;">
-    <a href="{% url 'lander' %}" class="w3-button w3-indigo w3-hover-blue w3-round-xlarge w3-padding-large">Lunar Lander</a>
-    <a href="{% url 'internet_quiz' %}" class="w3-button w3-indigo w3-hover-blue w3-round-xlarge w3-padding-large">Internet Quiz</a>
-    <a href="{% url 'programmer_survey' %}" class="w3-button w3-indigo w3-hover-blue w3-round-xlarge w3-padding-large">Programmer Survey</a>
-    <a href="{% url 'about' %}" class="w3-button w3-purple w3-hover-deep-purple w3-round-xlarge w3-padding-large">About</a>
+  <div class="w3-bar w3-margin-top w3-animate-opacity" style="display:flex;flex-wrap:wrap;gap:1em;justify-content:center;">
+    <a href="{% url 'lander' %}" class="w3-button w3-indigo w3-hover-blue w3-round-xxlarge w3-padding-large w3-card-2" style="transition:.2s;">Lunar Lander</a>
+    <a href="{% url 'internet_quiz' %}" class="w3-button w3-indigo w3-hover-blue w3-round-xxlarge w3-padding-large w3-card-2" style="transition:.2s;">Internet Quiz</a>
+    <a href="{% url 'programmer_survey' %}" class="w3-button w3-indigo w3-hover-blue w3-round-xxlarge w3-padding-large w3-card-2" style="transition:.2s;">Programmer Survey</a>
+    <a href="{% url 'about' %}" class="w3-button w3-purple w3-hover-deep-purple w3-round-xxlarge w3-padding-large w3-card-2" style="transition:.2s;">About</a>
   </div>
 </div>
-
 {% endblock content %}
