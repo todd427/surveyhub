@@ -1,30 +1,40 @@
+# surveyhub/docker-compose.yaml
 services:
   db:
     image: postgres:16
-    container_name: surveyhub-db
     restart: unless-stopped
     environment:
       POSTGRES_USER: surveyuser
       POSTGRES_PASSWORD: totme
       POSTGRES_DB: YOURDB
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
 
   web:
     build: .
-    container_name: surveyhub-web
-    command: gunicorn surveyhub.wsgi:application --bind 0.0.0.0:8000
-    env_file:
-      - .env
     depends_on:
       - db
     ports:
       - "8000:8000"
-    volumes:
-      - .:/app
-    restart: unless-stopped
-
+    environment:
+      # Pick your mode: drd (debug) or prod (production)
+      DJANGO_ENV: ${DJANGO_ENV:-prod}
+      # These get loaded in your settings module
+      SECRET_KEY: ${SECRET_KEY}
+      DATABASE_URL: ${DATABASE_URL}
+    env_file:
+      # This line means: use .env.drd for dev, .env.prod for prod
+      - .env.${DJANGO_ENV:-prod}
+    command: >
+      sh -c "
+        python manage.py migrate --settings=surveyhub.settings.${DJANGO_ENV:-prod} &&
+        if [ \"$DJANGO_ENV\" = \"drd\" ]; then
+          python manage.py runserver 0.0.0.0:8000 --settings=surveyhub.settings.drd;
+        else
+          gunicorn surveyhub.wsgi:application --bind 0.0.0.0:8000 --env DJANGO_SETTINGS_MODULE=surveyhub.settings.prod;
+        fi
+      "
 volumes:
   postgres_data:

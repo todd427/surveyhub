@@ -1,45 +1,103 @@
 #!/bin/bash
 
-# Usage: ./prepDocker.sh {prod|drd}
+# prepDocker.sh
 
-set -e
+# One-command prep for running your Django project with Docker Compose.
+#
+# Copies the selected .env file to .env and exports DJANGO_ENV_FILE accordingly.
+# Ensures required variables exist. Fails if a key is missing.
+#
+# ACTIONS:
+#   prod            Use production config      (.env.prod)
+#   drd             Use debug/Dr. Debug config (.env.drd)
+#   local           Use local dev config      (.env.local)
+#   custom <name>   Use custom env file       (.env.<name>)
+#   up              Start containers (docker compose up)
+#   down            Stop containers (docker compose down)
+#   restart         Restart containers
+#   logs            Show container logs
+#   build           Build containers
+#   bash            Open bash shell in web container
+#   shell           Open Django shell in web container
+#   help            Show this usage message
 
-REQUIRED_KEYS=("SECRET_KEY" "DATABASE_URL")
+show_usage() {
+    echo
+    echo "Usage: $0 {prod|drd|local|custom <NAME>|up|down|restart|logs|build|bash|shell|help}"
+    echo
+    echo "ACTIONS:"
+    echo "  prod            Use .env.prod   (sets DJANGO_ENV_FILE=.env.prod)"
+    echo "  drd             Use .env.drd    (sets DJANGO_ENV_FILE=.env.drd)"
+    echo "  local           Use .env.local  (sets DJANGO_ENV_FILE=.env.local)"
+    echo "  custom <NAME>   Use .env.<NAME> (sets DJANGO_ENV_FILE=.env.<NAME>)"
+    echo
+    echo "  up              Start containers        (docker compose up)"
+    echo "  down            Stop containers         (docker compose down)"
+    echo "  restart         Restart containers      (docker compose down; up)"
+    echo "  logs            Show container logs     (docker compose logs -f)"
+    echo "  build           Build containers        (docker compose build)"
+    echo "  bash            Bash shell in web       (docker compose exec web bash)"
+    echo "  shell           Django shell in web     (docker compose exec web python manage.py shell)"
+    echo
+    echo "  help            Show this help/usage message"
+    echo
+    echo "Fails if the selected .env file does not exist or is missing required keys."
+    echo
+    echo "Examples:"
+    echo "  $0 prod"
+    echo "  $0 drd"
+    echo "  $0 custom staging"
+    echo "  $0 up"
+    echo "  $0 logs"
+    echo
+}
 
-ENV_NAME=$1
-ACTION=$2
+ACTION=${1:-help}
 
-if [[ "$ENV_NAME" != "prod" && "$ENV_NAME" != "drd" ]]; then
-    echo "Usage: $0 {prod|drd}"
-    exit 1
-fi
+case "$ACTION" in
+    prod)
+        FILE=".env.prod"
+        ;;
+    drd)
+        FILE=".env.drd"
+        ;;
+    local)
+        FILE=".env.local"
+        ;;
+    custom)
+        if [ $# -lt 2 ]; then
+            echo "❌ Custom env file name required, e.g., ./$0 custom foo"
+            show_usage
+            exit 2
+        fi
+        FILE=".env.$2"
+        ;;
+    up|down|restart|logs|build|bash|shell)
+        # Defer .env prep for non-env actions
+        ;;
+    help|*)
+        show_usage
+        exit 1
+        ;;
+esac
 
-ENV_FILE=".env.$ENV_NAME"
+REQUIRED="SECRET_KEY DATABASE_URL"
 
-if [[ ! -f "$ENV_FILE" ]]; then
-    echo "❌ Environment file $ENV_FILE does not exist!"
-    exit 2
-fi
-
-# Validate required keys are present and non-empty
-for key in "${REQUIRED_KEYS[@]}"; do
-    # grep returns the whole line, we extract after the =
-    value=$(grep -E "^${key}=" "$ENV_FILE" | cut -d'=' -f2-)
-    if [[ -z "$value" ]]; then
-        echo "❌ Required key $key is missing or empty in $ENV_FILE!"
-        exit 3
+if [[ "$ACTION" =~ ^(prod|drd|local|custom)$ ]]; then
+    if [ ! -f "$FILE" ]; then
+        echo "❌ $FILE does not exist."
+        exit 2
     fi
-done
-
-# Copy the env file into .env for Docker Compose
-cp "$ENV_FILE" .env
-
-export DJANGO_ENV_FILE="$ENV_FILE"
-echo "✅ Set DJANGO_ENV_FILE=$ENV_FILE"
-echo "✅ .env now points to $ENV_FILE"
-
-echo "All required keys are present."
-
+    for key in $REQUIRED; do
+        if ! grep -q "^$key=" "$FILE"; then
+            echo "❌ $key is missing from $FILE"
+            exit 3
+        fi
+    done
+    cp "$FILE" .env
+    export DJANGO_ENV_FILE="$FILE"
+    echo "✅ Copied $FILE to .env and exported DJANGO_ENV_FILE=$FILE"
+fi
 
 if [[ "$ACTION" == "up" ]]; then
     echo "Starting containers..."
@@ -73,6 +131,6 @@ if [[ "$ACTION" == "bash" ]]; then
 fi
 
 if [[ "$ACTION" == "shell" ]]; then
-    echo "Opening shell..."
+    echo "Opening Django shell..."
     docker compose exec web python manage.py shell
 fi
