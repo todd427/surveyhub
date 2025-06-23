@@ -22,15 +22,16 @@
 #   help            Show this usage message
 
 show_usage() {
-    echo
+    echo ""
     echo "Usage: $0 {prod|drd|local|custom <NAME>|up|down|restart|logs|build|bash|shell|help}"
-    echo
-    echo "ACTIONS:"
+    echo ""
+    echo "ENV:"
     echo "  prod            Use .env.prod   (sets DJANGO_ENV_FILE=.env.prod)"
     echo "  drd             Use .env.drd    (sets DJANGO_ENV_FILE=.env.drd)"
     echo "  local           Use .env.local  (sets DJANGO_ENV_FILE=.env.local)"
     echo "  custom <NAME>   Use .env.<NAME> (sets DJANGO_ENV_FILE=.env.<NAME>)"
-    echo
+    echo ""
+    echo "ACTIONS:"
     echo "  up              Start containers        (docker compose up)"
     echo "  down            Stop containers         (docker compose down)"
     echo "  restart         Restart containers      (docker compose down; up)"
@@ -38,23 +39,25 @@ show_usage() {
     echo "  build           Build containers        (docker compose build)"
     echo "  bash            Bash shell in web       (docker compose exec web bash)"
     echo "  shell           Django shell in web     (docker compose exec web python manage.py shell)"
-    echo
+    echo ""
     echo "  help            Show this help/usage message"
-    echo
+    echo ""
     echo "Fails if the selected .env file does not exist or is missing required keys."
-    echo
+    echo ""
     echo "Examples:"
     echo "  $0 prod"
     echo "  $0 drd"
     echo "  $0 custom staging"
     echo "  $0 up"
     echo "  $0 logs"
-    echo
+    echo ""
 }
 
-ACTION=${1:-help}
 
-case "$ACTION" in
+ENV=${1:-help}
+ACTION=${2:-help}
+
+case "$ENV" in
     prod)
         FILE=".env.prod"
         ;;
@@ -83,7 +86,7 @@ esac
 
 REQUIRED="SECRET_KEY DATABASE_URL"
 
-if [[ "$ACTION" =~ ^(prod|drd|local|custom)$ ]]; then
+if [[ "$ENV" =~ ^(prod|drd|local|custom)$ ]]; then
     if [ ! -f "$FILE" ]; then
         echo "❌ $FILE does not exist."
         exit 2
