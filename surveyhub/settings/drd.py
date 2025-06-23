@@ -5,7 +5,7 @@ from .base import *
 
 # Go two levels up from settings/
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))  # surveyhub/
-dotenv_file = os.environ.get("DJANGO_ENV_FILE", ".env.local")
+dotenv_file = os.environ.get("DJANGO_ENV_FILE", ".env.drd")
 dotenv_path = os.path.join(BASE_DIR, dotenv_file)
 print("Looking for dotenv at:", dotenv_path)
 load_dotenv(dotenv_path=dotenv_path)
