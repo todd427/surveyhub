@@ -81,11 +81,231 @@
       </div>
     </div>
   </div>
-  <div class="w3-bar w3-margin-top w3-animate-opacity" style="display:flex;flex-wrap:wrap;gap:1em;justify-content:center;">
+  <div id="recent-books-widget"></div>
+
+  <script>
+  (async function loadRecentBooks() {
+    const API_URL = "http://127.0.0.1:8000/api/books/last/5/";
+    const container = document.getElementById("recent-books-widget");
+  
+    // --- Collapsed by default ---
+    let collapsed = true;
+    // --- Dark mode control ---
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    let darkMode = prefersDark;
+    let forceDarkMode = null; // null = auto, true/false = forced
+  
+    // --- CSS ---
+    const style = `
+      <style>
+        .recent-books-box {
+          /* font-family: system-ui, sans-serif;  REMOVE for inherit */
+          width: 100%;
+          max-width: 600px;
+          border: 1.5px solid var(--rborder, #b1b1b1);
+          border-radius: 14px;
+          padding: 1.2em 1.7em;
+          /* background: var(--rbg, #f4f9ff); REMOVE for inherit */
+          /* box-shadow: 0 2px 16px var(--rshadow, #d0d6e2); REMOVE for inherit */
+          margin: 0 auto 1.5em auto;
+          transition: background 0.3s, color 0.3s;
+        }
+        .recent-books-box.dark {
+          --rborder: #465077;
+          /* --rbg: #222b37; REMOVE for inherit */
+          /* --rshadow: #14203b55; REMOVE for inherit */
+          --rtext: #e2e6ef;
+          --rsub: #90baff;
+          background: #222b37;
+          color: #e2e6ef;
+        }
+        .recent-books-box:not(.dark) {
+          --rborder: #b1b1b1;
+          /* --rbg: #f4f9ff; REMOVE for inherit */
+          /* --rshadow: #d0d6e2; REMOVE for inherit */
+          --rtext: #21243a;
+          --rsub: #2d4580;
+          background: #f4f9ff;
+          color: #21243a;
+        }
+        /* Remove these for true inherit:
+        .recent-books-box { color: var(--rtext); }
+        */
+  
+        .recent-books-header {
+          margin: 0;
+          font-size: 1.3em;
+          font-weight: 600;
+          letter-spacing: 0.03em;
+          cursor: pointer;
+          user-select: none;
+          display: flex;
+          align-items: center;
+          gap: 0.5em;
+          transition: color 0.2s;
+        }
+        .recent-books-header .arrow {
+          font-size: 1.15em;
+          transition: transform 0.2s;
+        }
+        .recent-books-header.collapsed .arrow {
+          transform: rotate(-90deg);
+        }
+        .book-list {
+          margin-top: 0.5em;
+          transition: max-height 0.4s cubic-bezier(.5,.12,.31,1.18), opacity 0.3s;
+          overflow: hidden;
+          max-height: 1000px;
+          opacity: 1;
+        }
+        .book-list.collapsed {
+          max-height: 0;
+          opacity: 0;
+        }
+        .book-item {
+          margin-bottom: 1.1em;
+          padding-bottom: 1.1em;
+          border-bottom: 1px solid #eee3;
+        }
+        .book-item:last-child {
+          border-bottom: none;
+        }
+        .book-title {
+          font-weight: bold;
+          font-size: 1.13em;
+          margin-bottom: 0.2em;
+          line-height: 1.25;
+        }
+        .book-title a {
+          color: var(--rsub, #2d4580);
+          text-decoration: none;
+        }
+        .book-title a:hover {
+          text-decoration: underline;
+        }
+        .book-author {
+          font-size: 1em;
+          color: var(--rsub, #2d4580);
+        }
+        .recent-books-togglebtn {
+          margin-left: auto;
+          font-size: 0.8em;
+          padding: 0.3em 0.9em;
+          border: none;
+          border-radius: 1em;
+          background: var(--rsub, #2d4580);
+          color: #fff;
+          cursor: pointer;
+          outline: none;
+          transition: background 0.18s;
+        }
+        .recent-books-togglebtn:hover {
+          background: #444;
+        }
+        @media (max-width: 700px) {
+          .recent-books-box {
+            max-width: 97vw;
+            padding: 1.1em 0.6em;
+          }
+        }
+      </style>
+    `;
+  
+    // Render base box
+    container.innerHTML = style +
+      `<div class="recent-books-box${darkMode ? ' dark' : ''}">
+        <div class="recent-books-header${collapsed ? ' collapsed' : ''}" id="recent-books-toggle">
+          <span class="arrow">&#9660;</span>
+          <span>Recent Reads</span>
+          <button class="recent-books-togglebtn" id="recent-books-darkbtn" type="button" title="Toggle dark mode">
+            ${darkMode ? "🌙" : "☀️"}
+          </button>
+        </div>
+        <div class="book-list${collapsed ? ' collapsed' : ''}" id="book-list">Loading…</div>
+      </div>`;
+  
+    const listEl = document.getElementById("book-list");
+    const headerEl = document.getElementById("recent-books-toggle");
+    const darkBtn = document.getElementById("recent-books-darkbtn");
+    const box = container.querySelector('.recent-books-box');
+  
+    // Collapsible logic: start collapsed
+    headerEl.onclick = (e) => {
+      // Ignore if dark mode button was clicked
+      if (e.target === darkBtn) return;
+      collapsed = !collapsed;
+      listEl.classList.toggle("collapsed", collapsed);
+      headerEl.classList.toggle("collapsed", collapsed);
+    };
+  
+    // Dark mode toggle logic
+    darkBtn.onclick = (e) => {
+      e.stopPropagation(); // Don't collapse/expand!
+      if (forceDarkMode === null) forceDarkMode = !darkMode;
+      else forceDarkMode = !forceDarkMode;
+      darkMode = forceDarkMode;
+      box.classList.toggle("dark", darkMode);
+      darkBtn.innerText = darkMode ? "🌙" : "☀️";
+    };
+  
+    // Update dark mode if system changes, unless user forced
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+      if (forceDarkMode === null) {
+        darkMode = e.matches;
+        box.classList.toggle('dark', darkMode);
+        darkBtn.innerText = darkMode ? "🌙" : "☀️";
+      }
+    });
+  
+    // Fetch and show books
+    try {
+      const response = await fetch(API_URL);
+      if (!response.ok) throw new Error("API failed");
+      const books = await response.json();
+  
+      const bookList = books.map(book => {
+        if (book.openlibrary_url) {
+          return `
+            <div class="book-item">
+              <div class="book-title">
+                <a href="${book.openlibrary_url}" target="_blank" rel="noopener">${book.title}</a>
+              </div>
+              <div class="book-author">${book.author || "Unknown Author"}</div>
+            </div>
+          `;
+        } else {
+          return `
+            <div class="book-item">
+              <div class="book-title">${book.title}</div>
+              <div class="book-author">${book.author || "Unknown Author"}</div>
+            </div>
+          `;
+        }
+      }).join("");
+  
+      listEl.innerHTML = bookList;
+    } catch (err) {
+      listEl.innerHTML = `
+        <div style="color:#b00;padding:1em 0;">
+          <strong>Sorry, the book service is temporarily unavailable.</strong><br>
+          <button id="books-retry-btn" style="margin-top:0.7em;padding:0.5em 1.3em;border-radius:1em;background:#2d4580;color:#fff;border:none;cursor:pointer;">Retry</button>
+          <div style="font-size:0.95em;color:#888;margin-top:0.5em;">(Check your network connection or try again in a few minutes.)</div>
+        </div>
+      `;
+      document.getElementById("books-retry-btn").onclick = () => location.reload();
+      console.error("Widget error:", err);
+    }
+  })();
+
+  </script>
+    <div class="w3-bar w3-margin-top w3-animate-opacity" style="display:flex;flex-wrap:wrap;gap:1em;justify-content:center;">
     <a href="{% url 'lander' %}" class="w3-button w3-indigo w3-hover-blue w3-round-xxlarge w3-padding-large w3-card-2" style="transition:.2s;">Lunar Lander</a>
     <a href="{% url 'internet_quiz' %}" class="w3-button w3-indigo w3-hover-blue w3-round-xxlarge w3-padding-large w3-card-2" style="transition:.2s;">Internet Quiz</a>
     <a href="{% url 'programmer_survey' %}" class="w3-button w3-indigo w3-hover-blue w3-round-xxlarge w3-padding-large w3-card-2" style="transition:.2s;">Programmer Survey</a>
     <a href="{% url 'about' %}" class="w3-button w3-purple w3-hover-deep-purple w3-round-xxlarge w3-padding-large w3-card-2" style="transition:.2s;">About</a>
   </div>
 </div>
+
+
+
 {% endblock content %}
